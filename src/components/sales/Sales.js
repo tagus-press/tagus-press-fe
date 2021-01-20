@@ -100,7 +100,6 @@ class Sales extends Component {
   render() {
     const { sales, books } = this.props;
     const { search, location, startDate, endDate, exporting } = this.state;
-    console.log(startDate, endDate, "DAtes")
     const { errors } = this.state;
     let filteredSales = (sales.sales || []).filter((sale) => {
       let bookSearch = sale.book.toLowerCase().indexOf(search.toLowerCase()) !== -1

@@ -4,6 +4,7 @@ import jwt_decode from "jwt-decode";
 import setAuthToken from "./utils/setAuthToken";
 import { setCurrentUser, logoutUser } from "./actions/authActions";
 import { clearCurrentProfile } from "./actions/profileActions";
+import { clearCurrentBooks } from "./actions/booksActions";
 import { clearCurrentInventory } from "./actions/inventoryActions";
 import { clearCurrentSales } from "./actions/salesActions";
 import { clearCurrentProductionCosts } from "./actions/productionCostsActions";
@@ -23,6 +24,7 @@ import Inventory from "./components/inventory/Inventory";
 import Sales from "./components/sales/Sales";
 import ProductionCosts from "./components/production_costs/ProductionCosts";
 import PeriodicalCosts from "./components/periodical_costs/PeriodicalCosts";
+import Profile from "./components/profile/Profile";
 
 import 'antd/dist/antd.css'
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -42,6 +44,8 @@ if (localStorage.jwtToken) {
   if (decoded.exp < currentTime) {
     // Logout user
     store.dispatch(logoutUser());
+    // Clear current Books
+    store.dispatch(clearCurrentBooks());
     // Clear current Profile
     store.dispatch(clearCurrentProfile());
     // Clear current Inventory
@@ -101,6 +105,13 @@ function App() {
                 exact
                 path="/periodical-costs"
                 component={PeriodicalCosts}
+              ></PrivateRoute>
+            </Switch>
+            <Switch>
+              <PrivateRoute
+                exact
+                path="/profile"
+                component={Profile}
               ></PrivateRoute>
             </Switch>
           </div>

@@ -1,17 +1,18 @@
-import React, {Component} from "react";
-import { Link } from "react-router-dom";
+ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import Papa from "papaparse";
 import saveAs from "../../utils/save-as";
 
 
-import { getAllBooks } from "../../actions/booksActions";
+import { getAllBooks, getAllBookSeries } from "../../actions/booksActions";
 import Spinner from "../common/Spinner";
 import BooksTable from "./BooksTable";
 import { Container } from "react-bootstrap";
 import { Button, Row, Col, Input, notification } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
+import AddBookSeries from "./AddBookSeries";
+import AddBook from "./AddBook";
 
 class Books extends Component {
 
@@ -29,6 +30,7 @@ class Books extends Component {
   componentDidMount() {
     if (this.props.auth.isAuthenticated) {
       this.props.getAllBooks();
+      this.props.getAllBookSeries();
     }
   }
 
@@ -43,7 +45,7 @@ class Books extends Component {
   }
 
   exportData = (filteredBooks) => {
-    this.setState({exporting: true})
+    this.setState({ exporting: true })
     let downloadBooks = filteredBooks.map(b => {
       return {
         "Book": b.name,
@@ -71,60 +73,69 @@ class Books extends Component {
   }
 
   render() {
-    console.log("Search", this.state.search);
-    const {search, exporting} = this.state;
-    const {books} = this.props;
+    const { search, exporting } = this.state;
+    const { books } = this.props;
     let filteredBooks = (books.books || []).filter((book) => {
-      return (book.name.toLowerCase().indexOf(search.toLowerCase()) !== -1 || book.series.toLowerCase().indexOf(search.toLowerCase()) !== -1) 
+      return (book.name.toLowerCase().indexOf(search.toLowerCase()) !== -1 || book.series.toLowerCase().indexOf(search.toLowerCase()) !== -1)
     });
     const { errors } = this.state;
     let booksContent;
 
-    if (books.loading) {
+    if (books.loading || books.seriesLoading) {
       booksContent = <Spinner />;
-    }
-
-    booksContent = (
-      <div>
-        <Container>
-          <Row className="pt-2 pb-0 mb-4">
-            <Col>
+    } else {
+      booksContent = (
+        <div>
+          <Container>
+            <Row className="pt-2 pb-0 mb-4">
+              <Col>
                 <h2 className="text-dark">
                   Book List
                 </h2>
-            </Col>
-          </Row>
-          <Row 
-            justify="space-between"
-            className="mb-4"
-          >
-            <Col>
-              <Input
-                placeholder="Search - Book or Series"
-                size="large"
-                name="search"
-                type="text"
-                style={{ width: 400, align: "center" }}
-                value={this.state.search}
-                onChange={this.onChange}
-              />
-            </Col>
-            <Col>
-              <Button
-                type="primary"
-                icon={<DownloadOutlined />}
-                shape="round"
-                loading={exporting}
-                disabled={filteredBooks.length === 0}
-                onClick={() => this.exportData(filteredBooks)}>
-                  Export
-              </Button>
-            </Col>
-          </Row>
-          <BooksTable books={filteredBooks} />
-        </Container>
-      </div>
-    );
+              </Col>
+            </Row>
+            <Row
+              justify="space-between"
+              className="mb-4"
+            >
+              <Col>
+                <Input
+                  placeholder="Search - Book or Series"
+                  size="large"
+                  name="search"
+                  type="text"
+                  style={{ width: 400, align: "center" }}
+                  value={this.state.search}
+                  onChange={this.onChange}
+                />
+              </Col>
+              <Col>
+                <Row gutter={4}>
+                  <Col>
+                    <Button
+                      type="primary"
+                      icon={<DownloadOutlined />}
+                      shape="round"
+                      loading={exporting}
+                      disabled={filteredBooks.length === 0}
+                      onClick={() => this.exportData(filteredBooks)}>
+                      Export
+                  </Button>
+                  </Col>
+                  <Col>
+                    <AddBookSeries />
+                  </Col>
+                  <Col>
+                    <AddBook series={books.series} />
+                  </Col>
+                </Row>
+              </Col>
+            </Row>
+            <BooksTable books={filteredBooks} />
+          </Container>
+        </div>
+      );
+    }
 
     return <div className="dashboard">{booksContent}</div>;
   }
@@ -134,7 +145,8 @@ Books.propTypes = {
   auth: PropTypes.object.isRequired,
   profile: PropTypes.object.isRequired,
   books: PropTypes.object.isRequired,
-  getAllBooks: PropTypes.func.isRequired
+  getAllBooks: PropTypes.func.isRequired,
+  getAllBookSeries: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
@@ -145,5 +157,5 @@ const mapStateToProps = state => ({
 });
 
 export default connect(mapStateToProps, {
-  getAllBooks
+  getAllBooks, getAllBookSeries
 })(Books);

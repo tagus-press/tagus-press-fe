@@ -120,7 +120,6 @@ class Inventory extends Component {
                       type="text"
                       value={this.state.search}
                       onChange={this.onChange}
-                    // error={errors.search}
                     />
                   </Col>
                   <Col>

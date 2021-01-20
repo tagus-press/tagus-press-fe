@@ -1,5 +1,5 @@
 import React, { Component, useEffect, useState } from "react";
-import { Modal, Button, Form, Select, InputNumber, notification, DatePicker, Checkbox } from "antd";
+import { Modal, Button, Form, Select, InputNumber, notification } from "antd";
 import { UploadOutlined } from '@ant-design/icons';
 
 import axios from "axios";
@@ -7,11 +7,12 @@ import axios from "axios";
 // import "./main.scss"; // webpack must be configured to do this
 import "../../App.css";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllSales } from "../../actions/salesActions";
+import { getAllPeriodicalCosts } from "../../actions/periodicalCostsActions";
+
 
 const { Option } = Select;
 
-const AddSale = (props) => {
+const AddPeriodicalCosts = (props) => {
     const dispatch = useDispatch();
     const { books } = useSelector(redux => redux.books)
     const [form] = Form.useForm();
@@ -49,9 +50,9 @@ const AddSale = (props) => {
         }
     ]
 
-    const addSale = (saleData) => {
+    const addPeriodicalCosts = (periodicalCostsData) => {
         return axios
-            .post("api/sales", saleData)
+            .post("api/periodical-costs", periodicalCostsData)
             .then(res => {
                 return {
                     success: true
@@ -73,25 +74,22 @@ const AddSale = (props) => {
         form
             .validateFields()
             .then(values => {
-                addSale(values)
+                addPeriodicalCosts(values)
                     .then(res => {
                         if (res.success === true) {
-                            dispatch(getAllSales());
+                            dispatch(getAllPeriodicalCosts());
                             setShow(false);
                             form.resetFields();
                             notification['success']({
                                 message: 'Sucess',
-                                description:
-                                    'Sale Succesfully Added.',
+                                description: "Periodical Costs Succesfully Added.",
                             });
                         }
                     })
                     .catch(err => {
                         notification['error']({
-                            message: 'Error!',
-                            description:
-                                'Something went wrong. Please try again.',
-
+                            message: "Error!",
+                            description: "Something went wrong. Please try again.",
                         });
                     });
             })
@@ -101,15 +99,16 @@ const AddSale = (props) => {
     }
 
 
-    return (<>
+    return (<div>
         <Button
             type="primary"
-            shape="round"
             icon={<UploadOutlined />}
-            onClick={onShow}>
-            Add Sale
+            shape="round"
+            onClick={onShow}
+        >
+            Add Periodical Costs
         </Button>
-        <Modal title={'Add Sale'} visible={show} onCancel={onClose} onOk={onSubmit}>
+        <Modal title={'Add Periodical Costs'} visible={show} onCancel={onClose} onOk={onSubmit}>
             <Form
                 layout="horizontal"
                 form={form}
@@ -124,36 +123,25 @@ const AddSale = (props) => {
                         })}
                     </Select>
                 </Form.Item>
-                <Form.Item label="Select Center" name="location"
-                    rules={[{ required: true, message: "Please select a Center!" }]}>
-                    <Select placeholder="Select Center">
-                        {locations.map(location => {
-                            return < Option key={location.label} value={location.value}>{location.label}</Option>
-                        })}
-                    </Select>
-                </Form.Item>
-                <Form.Item label="Date" name="date" defaultValue={0}
-                    rules={[{ required: true, message: "Please select Date!" }]}>
-                    <DatePicker/>
-                </Form.Item>
-                <Form.Item label="" name="isEBook" valuePropName="checked">
-                    <Checkbox>eBook</Checkbox>
-                </Form.Item>
-                <Form.Item label="Price" name="price" defaultValue={0}
-                    rules={[{ required: true, message: "Please select Price!" }]}>
+                <Form.Item label="First Edition" name="first_edition" defaultValue={0}
+                    rules={[{ required: false, message: "Please add First Edition Cost!" }]}>
                     <InputNumber min={0} max={100000} defaultValue={0} />
                 </Form.Item>
-                <Form.Item label="Quantity" name="quantity" defaultValue={0}
-                    rules={[{ required: true, message: "Please select Quantity!" }]}>
+                <Form.Item label="Published Price" name="published" defaultValue={0}
+                    rules={[{ required: false, message: "Please add Published Price!" }]}>
                     <InputNumber min={0} max={100000} defaultValue={0} />
                 </Form.Item>
-                <Form.Item label="Total" name="total" defaultValue={0}
-                    rules={[{ required: true, message: "Please select Total!" }]}>
+                <Form.Item label="Royalty" name="royalty" defaultValue={0}
+                    rules={[{ required: false, message: "Please add Royalties!" }]}>
+                    <InputNumber min={0} max={100000} defaultValue={0} />
+                </Form.Item>
+                <Form.Item label="Author/Translator/Literary" name="author_translator_literary" defaultValue={0}
+                    rules={[{ required: false, message: "Please add Author/Translator/Literary Costs!" }]}>
                     <InputNumber min={0} max={100000} defaultValue={0} />
                 </Form.Item>
             </Form>
         </Modal>
-    </>)
+    </div>)
 }
 
-export default AddSale;
+export default AddPeriodicalCosts;
